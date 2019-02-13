@@ -9,75 +9,87 @@
 <!--д) Что можно вынести в абстрактный класс, наследование?-->
 
 
-
-!!!!!!!!!---------------ЗАПУТАЛСЯ, ДОДЕЛАЮ ПОСЛЕ ПЕРЕСМОТРА УРОКОВ--------!!!!!!!!
-!!!!!!!!!---------------УТОНУЛ В НАСЛЕДОВАНИИ-----------------------------!!!!!!!!
-
-
-
-
-
 <?php
 
-abstract class MainGood
+abstract class MainGood //Базовый класс товара
 {
-    protected $markup; //Наценка
-    protected $price; //Цена за единицу товара
-    protected $count; //Кол-во товара
-    protected $weight; //Вес одного товара
+  const MARKUP = 15; //Общая наценка на товар
+  abstract function GoodProfit(); //Абстрактный класс по вычислению прибыли
 
-  abstract function GetPrice();
-
-  protected function setDataGoods($markup, $price, $count, $weight){
-    $this->markup = $markup;
-    $this->price = $price;
-    $this->count = $count;
-    $this->weight = $weight;
-
-  }
 }
 
+class DigitalGood extends MainGood{ //Класс цифрового товара наследник базового класса товара
 
 
-class DigitalGood extends MainGood{
+    const PRICE = 280; //Цена за единицу товара
+    private $count; //Кол-во товара
+
+    public function __construct($count)
+    {
+       self::setDigitalGoodCount($count);
+    }
 
 
-    function GetPrice(){
+    public function setDigitalGoodCount($count){
+        $this->count = $count;
+    }
 
-        $priceSinglePieceGood = new SinglePieceGood;
-      $price = $priceSinglePieceGood->price / 2;
+    public function getDigitalGoodCount(){
+        return $this->count;
+    }
 
-     $profit = ($price * $this->count) / 100 * $this->markup;
-      echo "Прибыль от реализации электронного товара составила: ".$profit.'<br>';
-  }
+    function GoodProfit(){
+        $markup = parent::MARKUP;
+        $profit = (self::PRICE * $this->count) / 100 * $markup;
+        echo "Прибыль от реализации электронного товара составила: <b>".$profit."</b> рублей.<br><br>";
+    }
 }
 
-class SinglePieceGood extends MainGood {
+class SinglePieceGood extends DigitalGood { //Класс штучного товара наследник цифрового товара
 
 
+    function GoodProfit()
+    {
+        $price = self::PRICE *2;
+        $markup = parent::MARKUP;
+        $profit = ($price * parent::getDigitalGoodCount()) / 100 * $markup;
+        echo "Прибыль от реализации штучного товара составила: <b>".$profit."</b> рублей.<br><br>";
+    }
+}
 
-    function GetPrice()
+class Goodbymass extends MainGood { //Класс весового товара наследник базового класса товара
+
+    private $price; //Цена за единицу товара
+    private $weight; //Вес одного товара
+
+    public function __construct($price, $weight)
+    {
+        self::setGoodbymassPrice($price);
+        self::setGoodbymassWeight($weight);
+    }
+
+    public function setGoodbymassPrice($price){
+        $this->price = $price;
+    }
+
+    public function setGoodbymassWeight($weight){
+        $this->weight = $weight;
+    }
+
+    function GoodProfit()
 {
-    $profit = ($this->price * $this->count) / 100 * $this->markup;
-   echo "Прибыль от реализации штучного товара составила: ".$profit.'<br>';
+    $markup = parent::MARKUP;
+    $profit = ($this->price * $this->weight) / 100 * $markup;
+    echo "Прибыль от реализации весового товара составила: <b>".$profit."</b> рублей.<br>";
 }
 }
 
+$goodDigit = new DigitalGood(100);
+$goodDigit->GoodProfit();
 
-class Goodbymass extends MainGood {
+$goodSingle = new SinglePieceGood(100);
+$goodSingle->GoodProfit();
 
+$goodMass = new Goodbymass(350,150);
+$goodMass->GoodProfit();
 
-    function GetPrice()
-{
-    $profit = ($this->price * $this->weight) / 100 * $this->markup;
-    echo "Прибыль от реализации весового товара составила: ".$profit;
-}
-}
-
-$goodDigit = new DigitalGood;
-$goodSingle = new SinglePieceGood;
-$goodMass = new Goodbymass;
-
-//$goodDigit->GetPrice(30,130,100,0);
-$goodSingle->GetPrice();
-$goodMass->GetPrice();
